@@ -67,7 +67,7 @@ TEMPLATES = [
         },
     },
 ]
-HUGGINGFACE_API_KEY = "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"
+HUGGINGFACE_API_KEY = "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"
 
 
 WSGI_APPLICATION = "storyway.wsgi.application"

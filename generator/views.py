@@ -12,10 +12,17 @@ def story_gui(request):
 def generate_story(request):
     if request.method == 'POST':
         try:
-            client = InferenceClient(api_key=settings.HUGGINGFACE_API_KEY)
             data = json.loads(request.body)
             user_prompt = data.get('prompt', '')
+            
+            if not user_prompt:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'No prompt provided'
+                }, status=400)
 
+            client = InferenceClient(api_key=settings.HUGGINGFACE_API_KEY)
+            
             complete_prompt = f"""Create a detailed and immersive story based on this prompt: {user_prompt}
 
             Requirements for the story:
@@ -46,7 +53,21 @@ def generate_story(request):
             story = story.replace("\n\n", "<br><br>")
             
             return JsonResponse({'status': 'success', 'story': story})
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid JSON data'
+            }, status=400)
+            
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            print(f"Error generating story: {str(e)}")  # For debugging
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An error occurred while generating the story'
+            }, status=500)
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=400)
